@@ -29,25 +29,25 @@
     - Write unit tests for configuration merging logic
     - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 3. Create HTTP handlers for core endpoints
-  - [ ] 3.1 Implement handler structure and constructor
+- [x] 3. Create HTTP handlers for core endpoints
+  - [x] 3.1 Implement handler structure and constructor
     - Create Handler struct in internal/handlers
     - Implement NewHandler constructor function
     - _Requirements: 2.1, 4.1_
   
-  - [ ] 3.2 Implement home endpoint handler
+  - [x] 3.2 Implement home endpoint handler
     - Create Home handler function for "/" endpoint
     - Return welcome message using goccy/go-json for response
     - Write unit tests for home endpoint
     - _Requirements: 2.1_
   
-  - [ ] 3.3 Implement health check endpoint handler
+  - [x] 3.3 Implement health check endpoint handler
     - Create Health handler function for "/health" endpoint
     - Return health status using structured JSON response
     - Write unit tests for health endpoint
     - _Requirements: 2.2_
   
-  - [ ] 3.4 Implement 404 not found handler
+  - [x] 3.4 Implement 404 not found handler
     - Create NotFound handler function for undefined routes
     - Return proper 404 status with JSON error response
     - Write unit tests for 404 handler
