@@ -5,25 +5,25 @@
   - Verify module configuration and dependency versions
   - _Requirements: 4.1, 4.4_
 
-- [ ] 2. Implement configuration management system
-  - [ ] 2.1 Create configuration structures and default values
+- [x] 2. Implement configuration management system
+  - [x] 2.1 Create configuration structures and default values
     - Define Config and ServerConfig structs in internal/config
     - Implement GetDefaultConfig function with sensible defaults
     - _Requirements: 1.1, 1.3, 4.4_
   
-  - [ ] 2.2 Implement JSON configuration loading
+  - [x] 2.2 Implement JSON configuration loading
     - Create LoadConfig function using goccy/go-json
     - Add error handling for file reading and JSON parsing
     - Write unit tests for JSON configuration loading
     - _Requirements: 1.1, 4.4_
   
-  - [ ] 2.3 Implement environment variable configuration loading
+  - [x] 2.3 Implement environment variable configuration loading
     - Create LoadEnvConfig function using godotenv for .env files
     - Parse environment variables for all configuration options
     - Write unit tests for environment variable parsing
     - _Requirements: 1.1, 1.2_
   
-  - [ ] 2.4 Implement configuration merging with priority
+  - [x] 2.4 Implement configuration merging with priority
     - Create MergeConfigs function to handle configuration priority
     - Ensure environment variables override .env and JSON config
     - Write unit tests for configuration merging logic
