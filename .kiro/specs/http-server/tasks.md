@@ -53,14 +53,14 @@
     - Write unit tests for 404 handler
     - _Requirements: 2.3_
 
-- [ ] 4. Implement custom middleware system
-  - [ ] 4.1 Create middleware chaining utility
+- [x] 4. Implement custom middleware system
+  - [x] 4.1 Create middleware chaining utility
     - Implement Chain function for composing multiple middleware
     - Use standard http.Handler interface for compatibility
     - Write unit tests for middleware chaining
     - _Requirements: 3.3, 4.2_
   
-  - [ ] 4.2 Implement custom logging middleware
+  - [x] 4.2 Implement custom logging middleware
     - Create Logger middleware function for request logging
     - Log request method, path, and timestamp for each request
     - Add configurable logging enable/disable functionality
