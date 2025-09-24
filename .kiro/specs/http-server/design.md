@@ -23,7 +23,7 @@ internal/middleware (cross-cutting concerns)
 ### Key Design Decisions
 
 1. **Standard Library First**: Uses `net/http` with select external dependencies (`rs/cors`, `goccy/go-json`, `joho/godotenv`)
-2. **Flexible Configuration**: Supports JSON files, environment variables, and .env files with priority ordering
+2. **Flexible Configuration**: Supports JSON files and .env files with priority ordering
 3. **Custom Middleware**: Standard library-based middleware using `http.Handler` interface
 4. **Graceful Shutdown**: Context-based shutdown with configurable timeout
 5. **Custom Logging**: Built-in request logging middleware using standard library
@@ -222,18 +222,20 @@ The server provides sensible defaults:
 ### Configuration Priority Order
 
 The server loads configuration in the following priority order (higher priority overrides lower):
-1. Environment variables (highest priority)
-2. .env file variables (loaded via godotenv)
-3. JSON configuration file
-4. Default configuration (lowest priority)
+1. .env file variables (loaded via godotenv) (highest priority)
+2. JSON configuration file
+3. Default configuration (lowest priority)
 
-### Environment Variable Support
+### .env File Variable Support
 
-The server supports the following environment variables:
+The server supports the following variables in the .env file:
 - `PORT`: Override server port
 - `CONFIG_PATH`: Specify config file location
 - `SHUTDOWN_TIMEOUT`: Override shutdown timeout in seconds
+- `READ_TIMEOUT`: Override read timeout in seconds
+- `WRITE_TIMEOUT`: Override write timeout in seconds
 - `ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins
+- `ALLOWED_METHODS`: Comma-separated list of allowed HTTP methods
 - `ENABLE_LOGGING`: Enable/disable request logging (true/false)
 
 ### .env File Support

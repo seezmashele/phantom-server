@@ -12,11 +12,12 @@ This feature involves creating a simple HTTP server using Go's standard library.
 
 #### Acceptance Criteria
 
-1. WHEN the application starts THEN the system SHALL read configuration from a config file
-2. WHEN the config file specifies a port THEN the system SHALL use that port for the HTTP server
-3. WHEN no config file exists or no port is specified THEN the system SHALL default to port 8080
-4. WHEN the server starts successfully THEN the system SHALL log the listening address
-5. WHEN the server fails to start THEN the system SHALL log an error and exit gracefully
+1. WHEN the application starts THEN the system SHALL read configuration from .env file and JSON config file with priority: .env > json > defaults
+2. WHEN the .env file specifies a port THEN the system SHALL use that port for the HTTP server
+3. WHEN no .env file exists or no port is specified THEN the system SHALL check JSON config file
+4. WHEN no config files exist or no port is specified THEN the system SHALL default to port 8080
+5. WHEN the server starts successfully THEN the system SHALL log the listening address
+6. WHEN the server fails to start THEN the system SHALL log an error and exit gracefully
 
 ### Requirement 2
 

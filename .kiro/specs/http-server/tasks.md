@@ -25,7 +25,7 @@
   
   - [x] 2.4 Implement configuration merging with priority
     - Create MergeConfigs function to handle configuration priority
-    - Ensure environment variables override .env and JSON config
+    - Ensure .env variables override JSON config
     - Write unit tests for configuration merging logic
     - _Requirements: 1.1, 1.2, 1.3_
 
@@ -97,7 +97,7 @@
 
 - [x] 7. Integrate all components in main.go
   - [x] 7.1 Update main function with complete server setup
-    - Load configuration using priority system (env > .env > json > defaults)
+    - Load configuration using priority system (.env > json > defaults)
     - Initialize handlers, router, and middleware
     - Start HTTP server with graceful shutdown handling
     - Add comprehensive error handling and logging

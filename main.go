@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"phantom-server/internal/config"
 	"phantom-server/internal/handlers"
 	"phantom-server/internal/routes"
@@ -36,13 +37,20 @@ func main() {
 	}
 }
 
-// loadConfiguration loads configuration with priority: env > .env > json > defaults
+// loadConfiguration loads configuration with priority: .env > json > defaults
 func loadConfiguration() (*config.Config, error) {
 	// Start with default configuration
 	cfg := config.GetDefaultConfig()
 
-	// Try to load from JSON file if CONFIG_PATH is specified
-	if configPath := os.Getenv("CONFIG_PATH"); configPath != "" {
+	// Load .env file configuration
+	envCfg, err := config.LoadEnvConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load .env configuration: %w", err)
+	}
+
+	// Check if CONFIG_PATH is specified in .env file
+	envVars, _ := godotenv.Read()
+	if configPath, exists := envVars["CONFIG_PATH"]; exists && configPath != "" {
 		if jsonCfg, err := config.LoadConfig(configPath); err == nil {
 			cfg = config.MergeConfigs(cfg, jsonCfg)
 		} else {
@@ -50,13 +58,7 @@ func loadConfiguration() (*config.Config, error) {
 		}
 	}
 
-	// Load environment variables (including .env file)
-	envCfg, err := config.LoadEnvConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load environment configuration: %w", err)
-	}
-
-	// Merge with environment configuration (highest priority)
+	// Merge with .env configuration (highest priority)
 	cfg = config.MergeConfigs(cfg, envCfg)
 
 	return cfg, nil

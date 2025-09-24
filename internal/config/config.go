@@ -77,43 +77,47 @@ func WriteConfig(path string, config *Config) error {
 	return nil
 }
 
-// LoadEnvConfig loads configuration from environment variables and .env files using godotenv
+// LoadEnvConfig loads configuration from .env files using godotenv
 func LoadEnvConfig() (*Config, error) {
 	// Load .env file if it exists (ignore error if file doesn't exist)
-	_ = godotenv.Load()
+	envVars, err := godotenv.Read()
+	if err != nil {
+		// If .env file doesn't exist, return empty config (will use defaults)
+		return GetDefaultConfig(), nil
+	}
 
 	config := GetDefaultConfig()
 
 	// Parse PORT
-	if portStr := os.Getenv("PORT"); portStr != "" {
+	if portStr, exists := envVars["PORT"]; exists && portStr != "" {
 		if port, err := strconv.Atoi(portStr); err == nil {
 			config.Server.Port = port
 		}
 	}
 
 	// Parse SHUTDOWN_TIMEOUT
-	if timeoutStr := os.Getenv("SHUTDOWN_TIMEOUT"); timeoutStr != "" {
+	if timeoutStr, exists := envVars["SHUTDOWN_TIMEOUT"]; exists && timeoutStr != "" {
 		if timeout, err := strconv.Atoi(timeoutStr); err == nil {
 			config.Server.ShutdownTimeout = timeout
 		}
 	}
 
 	// Parse READ_TIMEOUT
-	if timeoutStr := os.Getenv("READ_TIMEOUT"); timeoutStr != "" {
+	if timeoutStr, exists := envVars["READ_TIMEOUT"]; exists && timeoutStr != "" {
 		if timeout, err := strconv.Atoi(timeoutStr); err == nil {
 			config.Server.ReadTimeout = timeout
 		}
 	}
 
 	// Parse WRITE_TIMEOUT
-	if timeoutStr := os.Getenv("WRITE_TIMEOUT"); timeoutStr != "" {
+	if timeoutStr, exists := envVars["WRITE_TIMEOUT"]; exists && timeoutStr != "" {
 		if timeout, err := strconv.Atoi(timeoutStr); err == nil {
 			config.Server.WriteTimeout = timeout
 		}
 	}
 
 	// Parse ALLOWED_ORIGINS
-	if originsStr := os.Getenv("ALLOWED_ORIGINS"); originsStr != "" {
+	if originsStr, exists := envVars["ALLOWED_ORIGINS"]; exists && originsStr != "" {
 		origins := strings.Split(originsStr, ",")
 		for i, origin := range origins {
 			origins[i] = strings.TrimSpace(origin)
@@ -122,7 +126,7 @@ func LoadEnvConfig() (*Config, error) {
 	}
 
 	// Parse ALLOWED_METHODS
-	if methodsStr := os.Getenv("ALLOWED_METHODS"); methodsStr != "" {
+	if methodsStr, exists := envVars["ALLOWED_METHODS"]; exists && methodsStr != "" {
 		methods := strings.Split(methodsStr, ",")
 		for i, method := range methods {
 			methods[i] = strings.TrimSpace(method)
@@ -131,7 +135,7 @@ func LoadEnvConfig() (*Config, error) {
 	}
 
 	// Parse ENABLE_LOGGING
-	if loggingStr := os.Getenv("ENABLE_LOGGING"); loggingStr != "" {
+	if loggingStr, exists := envVars["ENABLE_LOGGING"]; exists && loggingStr != "" {
 		if logging, err := strconv.ParseBool(loggingStr); err == nil {
 			config.Server.EnableLogging = logging
 		}

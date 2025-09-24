@@ -149,34 +149,23 @@ func TestWriteConfig(t *testing.T) {
 }
 
 func TestLoadEnvConfig(t *testing.T) {
-	// Save original environment variables
-	originalEnvVars := map[string]string{
-		"PORT":             os.Getenv("PORT"),
-		"SHUTDOWN_TIMEOUT": os.Getenv("SHUTDOWN_TIMEOUT"),
-		"READ_TIMEOUT":     os.Getenv("READ_TIMEOUT"),
-		"WRITE_TIMEOUT":    os.Getenv("WRITE_TIMEOUT"),
-		"ALLOWED_ORIGINS":  os.Getenv("ALLOWED_ORIGINS"),
-		"ALLOWED_METHODS":  os.Getenv("ALLOWED_METHODS"),
-		"ENABLE_LOGGING":   os.Getenv("ENABLE_LOGGING"),
+	// Create a temporary directory for test .env files
+	tempDir, err := os.MkdirTemp("", "config_test")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
 	}
+	defer os.RemoveAll(tempDir)
 
-	// Cleanup function to restore original environment
-	cleanup := func() {
-		for key, value := range originalEnvVars {
-			if value == "" {
-				os.Unsetenv(key)
-			} else {
-				os.Setenv(key, value)
-			}
-		}
+	// Save current working directory
+	originalWd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Failed to get current working directory: %v", err)
 	}
-	defer cleanup()
+	defer os.Chdir(originalWd)
 
-	t.Run("Load default config when no env vars set", func(t *testing.T) {
-		// Clear all environment variables
-		for key := range originalEnvVars {
-			os.Unsetenv(key)
-		}
+	t.Run("Load default config when no .env file exists", func(t *testing.T) {
+		// Change to temp directory where no .env file exists
+		os.Chdir(tempDir)
 
 		config, err := LoadEnvConfig()
 		if err != nil {
@@ -185,19 +174,28 @@ func TestLoadEnvConfig(t *testing.T) {
 
 		defaultConfig := GetDefaultConfig()
 		if !reflect.DeepEqual(config, defaultConfig) {
-			t.Errorf("Expected default config when no env vars set.\nExpected: %+v\nGot: %+v", defaultConfig, config)
+			t.Errorf("Expected default config when no .env file exists.\nExpected: %+v\nGot: %+v", defaultConfig, config)
 		}
 	})
 
-	t.Run("Load config with environment variables", func(t *testing.T) {
-		// Set test environment variables
-		os.Setenv("PORT", "3000")
-		os.Setenv("SHUTDOWN_TIMEOUT", "45")
-		os.Setenv("READ_TIMEOUT", "15")
-		os.Setenv("WRITE_TIMEOUT", "15")
-		os.Setenv("ALLOWED_ORIGINS", "http://localhost:3000,https://example.com")
-		os.Setenv("ALLOWED_METHODS", "GET,POST,PUT")
-		os.Setenv("ENABLE_LOGGING", "false")
+	t.Run("Load config from .env file", func(t *testing.T) {
+		// Create .env file in temp directory
+		envPath := filepath.Join(tempDir, ".env")
+		envContent := `PORT=3000
+SHUTDOWN_TIMEOUT=45
+READ_TIMEOUT=15
+WRITE_TIMEOUT=15
+ALLOWED_ORIGINS=http://localhost:3000,https://example.com
+ALLOWED_METHODS=GET,POST,PUT
+ENABLE_LOGGING=false`
+
+		err := os.WriteFile(envPath, []byte(envContent), 0644)
+		if err != nil {
+			t.Fatalf("Failed to write .env file: %v", err)
+		}
+
+		// Change to temp directory
+		os.Chdir(tempDir)
 
 		config, err := LoadEnvConfig()
 		if err != nil {
@@ -235,11 +233,20 @@ func TestLoadEnvConfig(t *testing.T) {
 		}
 	})
 
-	t.Run("Handle invalid environment variables gracefully", func(t *testing.T) {
-		// Set invalid environment variables
-		os.Setenv("PORT", "invalid_port")
-		os.Setenv("SHUTDOWN_TIMEOUT", "invalid_timeout")
-		os.Setenv("ENABLE_LOGGING", "invalid_bool")
+	t.Run("Handle invalid .env file values gracefully", func(t *testing.T) {
+		// Create .env file with invalid values
+		envPath := filepath.Join(tempDir, ".env")
+		envContent := `PORT=invalid_port
+SHUTDOWN_TIMEOUT=invalid_timeout
+ENABLE_LOGGING=invalid_bool`
+
+		err := os.WriteFile(envPath, []byte(envContent), 0644)
+		if err != nil {
+			t.Fatalf("Failed to write .env file: %v", err)
+		}
+
+		// Change to temp directory
+		os.Chdir(tempDir)
 
 		config, err := LoadEnvConfig()
 		if err != nil {
@@ -249,15 +256,50 @@ func TestLoadEnvConfig(t *testing.T) {
 		// Should fall back to defaults for invalid values
 		defaultConfig := GetDefaultConfig()
 		if config.Server.Port != defaultConfig.Server.Port {
-			t.Errorf("Expected default port %d for invalid env var, got %d", defaultConfig.Server.Port, config.Server.Port)
+			t.Errorf("Expected default port %d for invalid .env var, got %d", defaultConfig.Server.Port, config.Server.Port)
 		}
 
 		if config.Server.ShutdownTimeout != defaultConfig.Server.ShutdownTimeout {
-			t.Errorf("Expected default shutdown timeout %d for invalid env var, got %d", defaultConfig.Server.ShutdownTimeout, config.Server.ShutdownTimeout)
+			t.Errorf("Expected default shutdown timeout %d for invalid .env var, got %d", defaultConfig.Server.ShutdownTimeout, config.Server.ShutdownTimeout)
 		}
 
 		if config.Server.EnableLogging != defaultConfig.Server.EnableLogging {
-			t.Errorf("Expected default logging %v for invalid env var, got %v", defaultConfig.Server.EnableLogging, config.Server.EnableLogging)
+			t.Errorf("Expected default logging %v for invalid .env var, got %v", defaultConfig.Server.EnableLogging, config.Server.EnableLogging)
+		}
+	})
+
+	t.Run("Load partial config from .env file", func(t *testing.T) {
+		// Create .env file with only some values
+		envPath := filepath.Join(tempDir, ".env")
+		envContent := `PORT=4000
+ENABLE_LOGGING=false`
+
+		err := os.WriteFile(envPath, []byte(envContent), 0644)
+		if err != nil {
+			t.Fatalf("Failed to write .env file: %v", err)
+		}
+
+		// Change to temp directory
+		os.Chdir(tempDir)
+
+		config, err := LoadEnvConfig()
+		if err != nil {
+			t.Fatalf("Failed to load env config: %v", err)
+		}
+
+		// Should use .env values where provided
+		if config.Server.Port != 4000 {
+			t.Errorf("Expected port 4000, got %d", config.Server.Port)
+		}
+
+		if config.Server.EnableLogging {
+			t.Error("Expected logging to be disabled")
+		}
+
+		// Should use defaults for non-provided values
+		defaultConfig := GetDefaultConfig()
+		if config.Server.ShutdownTimeout != defaultConfig.Server.ShutdownTimeout {
+			t.Errorf("Expected default shutdown timeout %d, got %d", defaultConfig.Server.ShutdownTimeout, config.Server.ShutdownTimeout)
 		}
 	})
 }
