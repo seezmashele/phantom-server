@@ -67,13 +67,13 @@
     - Write unit tests for logging middleware
     - _Requirements: 3.1, 3.3_
 
-- [ ] 5. Setup routing system with middleware integration
-  - [ ] 5.1 Create router structure and constructor
+- [x] 5. Setup routing system with middleware integration
+  - [x] 5.1 Create router structure and constructor
     - Create Router struct in internal/routes using http.ServeMux
     - Implement NewRouter constructor with handler dependency
     - _Requirements: 4.3_
   
-  - [ ] 5.2 Implement route registration with middleware
+  - [x] 5.2 Implement route registration with middleware
     - Create SetupRoutes function to register all endpoints
     - Apply middleware chain (logging, CORS) to all routes
     - Configure CORS using rs/cors package with config options
