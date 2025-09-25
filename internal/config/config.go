@@ -115,7 +115,7 @@ func LoadEnvConfig() (*Config, error) {
 }
 
 // MergeConfigs merges two configurations with the override config taking priority
-// Non-zero values in override will replace corresponding values in base
+// Timeout and methods values are never overridden (always use base/hardcoded values)
 func MergeConfigs(base, override *Config) *Config {
 	if base == nil {
 		base = GetDefaultConfig()
@@ -127,40 +127,29 @@ func MergeConfigs(base, override *Config) *Config {
 	result := &Config{
 		Server: ServerConfig{
 			Port:            base.Server.Port,
-			ShutdownTimeout: base.Server.ShutdownTimeout,
-			ReadTimeout:     base.Server.ReadTimeout,
-			WriteTimeout:    base.Server.WriteTimeout,
+			ShutdownTimeout: base.Server.ShutdownTimeout, // Always use base (hardcoded) values
+			ReadTimeout:     base.Server.ReadTimeout,     // Always use base (hardcoded) values
+			WriteTimeout:    base.Server.WriteTimeout,    // Always use base (hardcoded) values
 			AllowedOrigins:  make([]string, len(base.Server.AllowedOrigins)),
-			AllowedMethods:  make([]string, len(base.Server.AllowedMethods)),
+			AllowedMethods:  make([]string, len(base.Server.AllowedMethods)), // Always use base (hardcoded) values
 			EnableLogging:   base.Server.EnableLogging,
 		},
 	}
 
-	// Copy slices from base
+	// Copy slices from base (timeout and methods are never overridden)
 	copy(result.Server.AllowedOrigins, base.Server.AllowedOrigins)
 	copy(result.Server.AllowedMethods, base.Server.AllowedMethods)
 
-	// Override with non-zero values from override config
+	// Override with non-zero values from override config (excluding timeout and methods)
 	if override.Server.Port != 0 {
 		result.Server.Port = override.Server.Port
 	}
-	if override.Server.ShutdownTimeout != 0 {
-		result.Server.ShutdownTimeout = override.Server.ShutdownTimeout
-	}
-	if override.Server.ReadTimeout != 0 {
-		result.Server.ReadTimeout = override.Server.ReadTimeout
-	}
-	if override.Server.WriteTimeout != 0 {
-		result.Server.WriteTimeout = override.Server.WriteTimeout
-	}
+	// Timeout values are intentionally NOT overridden - they remain hardcoded
 	if len(override.Server.AllowedOrigins) > 0 {
 		result.Server.AllowedOrigins = make([]string, len(override.Server.AllowedOrigins))
 		copy(result.Server.AllowedOrigins, override.Server.AllowedOrigins)
 	}
-	if len(override.Server.AllowedMethods) > 0 {
-		result.Server.AllowedMethods = make([]string, len(override.Server.AllowedMethods))
-		copy(result.Server.AllowedMethods, override.Server.AllowedMethods)
-	}
+	// AllowedMethods are intentionally NOT overridden - they remain hardcoded
 	// For boolean values, we need to check if they differ from the default
 	// Since we can't distinguish between false and unset, we'll always use the override value
 	result.Server.EnableLogging = override.Server.EnableLogging
