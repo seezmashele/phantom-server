@@ -18,11 +18,11 @@ type Config struct {
 // ServerConfig represents the HTTP server configuration
 type ServerConfig struct {
 	Port            int      `json:"port"`
-	ShutdownTimeout int      `json:"shutdown_timeout_seconds"`
-	ReadTimeout     int      `json:"read_timeout_seconds"`
-	WriteTimeout    int      `json:"write_timeout_seconds"`
+	ShutdownTimeout int      // Hardcoded timeout value, not configurable via JSON
+	ReadTimeout     int      // Hardcoded timeout value, not configurable via JSON
+	WriteTimeout    int      // Hardcoded timeout value, not configurable via JSON
 	AllowedOrigins  []string `json:"allowed_origins"`
-	AllowedMethods  []string `json:"allowed_methods"`
+	AllowedMethods  []string // Hardcoded HTTP methods, not configurable via JSON
 	EnableLogging   bool     `json:"enable_logging"`
 }
 
@@ -95,27 +95,6 @@ func LoadEnvConfig() (*Config, error) {
 		}
 	}
 
-	// Parse SHUTDOWN_TIMEOUT
-	if timeoutStr, exists := envVars["SHUTDOWN_TIMEOUT"]; exists && timeoutStr != "" {
-		if timeout, err := strconv.Atoi(timeoutStr); err == nil {
-			config.Server.ShutdownTimeout = timeout
-		}
-	}
-
-	// Parse READ_TIMEOUT
-	if timeoutStr, exists := envVars["READ_TIMEOUT"]; exists && timeoutStr != "" {
-		if timeout, err := strconv.Atoi(timeoutStr); err == nil {
-			config.Server.ReadTimeout = timeout
-		}
-	}
-
-	// Parse WRITE_TIMEOUT
-	if timeoutStr, exists := envVars["WRITE_TIMEOUT"]; exists && timeoutStr != "" {
-		if timeout, err := strconv.Atoi(timeoutStr); err == nil {
-			config.Server.WriteTimeout = timeout
-		}
-	}
-
 	// Parse ALLOWED_ORIGINS
 	if originsStr, exists := envVars["ALLOWED_ORIGINS"]; exists && originsStr != "" {
 		origins := strings.Split(originsStr, ",")
@@ -123,15 +102,6 @@ func LoadEnvConfig() (*Config, error) {
 			origins[i] = strings.TrimSpace(origin)
 		}
 		config.Server.AllowedOrigins = origins
-	}
-
-	// Parse ALLOWED_METHODS
-	if methodsStr, exists := envVars["ALLOWED_METHODS"]; exists && methodsStr != "" {
-		methods := strings.Split(methodsStr, ",")
-		for i, method := range methods {
-			methods[i] = strings.TrimSpace(method)
-		}
-		config.Server.AllowedMethods = methods
 	}
 
 	// Parse ENABLE_LOGGING

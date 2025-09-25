@@ -14,8 +14,23 @@ func TestGetDefaultConfig(t *testing.T) {
 		t.Errorf("Expected default port 8080, got %d", config.Server.Port)
 	}
 
+	// Test hardcoded timeout values as required by task 2
 	if config.Server.ShutdownTimeout != 30 {
 		t.Errorf("Expected default shutdown timeout 30, got %d", config.Server.ShutdownTimeout)
+	}
+
+	if config.Server.ReadTimeout != 10 {
+		t.Errorf("Expected default read timeout 10, got %d", config.Server.ReadTimeout)
+	}
+
+	if config.Server.WriteTimeout != 10 {
+		t.Errorf("Expected default write timeout 10, got %d", config.Server.WriteTimeout)
+	}
+
+	// Test hardcoded HTTP methods as required by task 2
+	expectedMethods := []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	if !reflect.DeepEqual(config.Server.AllowedMethods, expectedMethods) {
+		t.Errorf("Expected default methods %v, got %v", expectedMethods, config.Server.AllowedMethods)
 	}
 
 	if !config.Server.EnableLogging {
@@ -115,7 +130,7 @@ func TestWriteConfig(t *testing.T) {
 
 	t.Run("Write and read config", func(t *testing.T) {
 		configPath := filepath.Join(tempDir, "write_test.json")
-		
+
 		// Create a test config
 		testConfig := &Config{
 			Server: ServerConfig{
@@ -313,12 +328,12 @@ func TestMergeConfigs(t *testing.T) {
 		}
 
 		result := MergeConfigs(nil, override)
-		
+
 		// Should use default config as base
 		if result.Server.Port != 3000 {
 			t.Errorf("Expected port 3000, got %d", result.Server.Port)
 		}
-		
+
 		// Should keep default values for non-overridden fields
 		defaultConfig := GetDefaultConfig()
 		if result.Server.ShutdownTimeout != defaultConfig.Server.ShutdownTimeout {
@@ -336,7 +351,7 @@ func TestMergeConfigs(t *testing.T) {
 		}
 
 		result := MergeConfigs(base, nil)
-		
+
 		if !reflect.DeepEqual(result, base) {
 			t.Errorf("Expected base config when override is nil.\nExpected: %+v\nGot: %+v", base, result)
 		}
@@ -414,10 +429,10 @@ func TestMergeConfigs(t *testing.T) {
 
 		override := &Config{
 			Server: ServerConfig{
-				Port:            0, // Zero value should not override
-				ShutdownTimeout: 0, // Zero value should not override
+				Port:            0,          // Zero value should not override
+				ShutdownTimeout: 0,          // Zero value should not override
 				AllowedOrigins:  []string{}, // Empty slice should not override
-				EnableLogging:   false, // Boolean false should override
+				EnableLogging:   false,      // Boolean false should override
 			},
 		}
 

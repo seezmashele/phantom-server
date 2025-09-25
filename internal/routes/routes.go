@@ -28,7 +28,7 @@ func (r *Router) SetupRoutes(cfg *config.Config) http.Handler {
 	// Register specific routes
 	r.mux.HandleFunc("/", r.handler.Home)
 	r.mux.HandleFunc("/health", r.handler.Health)
-	
+
 	// Create a wrapper that handles 404s for unregistered routes
 	routeHandler := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		// For the root path, serve it directly
@@ -36,7 +36,7 @@ func (r *Router) SetupRoutes(cfg *config.Config) http.Handler {
 			r.handler.Home(w, req)
 			return
 		}
-		// For health path, serve it directly  
+		// For health path, serve it directly
 		if req.URL.Path == "/health" {
 			r.handler.Health(w, req)
 			return
@@ -44,15 +44,15 @@ func (r *Router) SetupRoutes(cfg *config.Config) http.Handler {
 		// For all other paths, return 404
 		r.handler.NotFound(w, req)
 	})
-	
+
 	// Setup CORS middleware
 	corsHandler := r.setupCORS(cfg)
-	
+
 	// Create middleware chain: Logger -> CORS -> Routes
 	middlewareChain := middleware.Chain(
 		middleware.Logger(cfg.Server.EnableLogging),
 	)
-	
+
 	// Apply middleware chain to the route handler, then wrap with CORS
 	return corsHandler.Handler(middlewareChain(routeHandler))
 }
@@ -60,9 +60,9 @@ func (r *Router) SetupRoutes(cfg *config.Config) http.Handler {
 // setupCORS configures CORS using rs/cors package with config options
 func (r *Router) setupCORS(cfg *config.Config) *cors.Cors {
 	return cors.New(cors.Options{
-		AllowedOrigins: cfg.Server.AllowedOrigins,
-		AllowedMethods: cfg.Server.AllowedMethods,
-		AllowedHeaders: []string{"*"},
+		AllowedOrigins:   cfg.Server.AllowedOrigins,
+		AllowedMethods:   cfg.Server.AllowedMethods,
+		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 	})
 }

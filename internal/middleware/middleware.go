@@ -31,9 +31,9 @@ func Logger(enabled bool) Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if enabled {
 				start := time.Now()
-				log.Printf("[%s] %s %s", 
-					start.Format("2006-01-02 15:04:05"), 
-					r.Method, 
+				log.Printf("[%s] %s %s",
+					start.Format("2006-01-02 15:04:05"),
+					r.Method,
 					r.URL.Path)
 			}
 			next.ServeHTTP(w, r)

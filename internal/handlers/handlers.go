@@ -35,7 +35,7 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 			"service": "http-server",
 		},
 	}
-	
+
 	h.writeJSONResponse(w, http.StatusOK, response)
 }
 
@@ -52,7 +52,7 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 	}
-	
+
 	h.writeJSONResponse(w, http.StatusOK, response)
 }
 
@@ -66,7 +66,7 @@ func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
 			"method": r.Method,
 		},
 	}
-	
+
 	h.writeJSONResponse(w, http.StatusNotFound, response)
 }
 
@@ -74,7 +74,7 @@ func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) writeJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	
+
 	if err := gojson.NewEncoder(w).Encode(data); err != nil {
 		// Fallback to standard library if goccy/go-json fails
 		json.NewEncoder(w).Encode(map[string]string{

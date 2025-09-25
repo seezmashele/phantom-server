@@ -1,18 +1,9 @@
 {
   "server": {
-    "port": 8080,
-    "shutdown_timeout_seconds": 30,
-    "read_timeout_seconds": 10,
-    "write_timeout_seconds": 10,
+    "port": 3070,
     "allowed_origins": [
-      "*"
-    ],
-    "allowed_methods": [
-      "GET",
-      "POST",
-      "PUT",
-      "DELETE",
-      "OPTIONS"
+      "*",
+      "http://www.niceexample.com"
     ],
     "enable_logging": true
   }

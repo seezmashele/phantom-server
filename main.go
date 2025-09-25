@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/joho/godotenv"
 	"phantom-server/internal/config"
 	"phantom-server/internal/handlers"
 	"phantom-server/internal/routes"
@@ -48,16 +47,6 @@ func loadConfiguration() (*config.Config, error) {
 		return nil, fmt.Errorf("failed to load .env configuration: %w", err)
 	}
 
-	// Check if CONFIG_PATH is specified in .env file
-	envVars, _ := godotenv.Read()
-	if configPath, exists := envVars["CONFIG_PATH"]; exists && configPath != "" {
-		if jsonCfg, err := config.LoadConfig(configPath); err == nil {
-			cfg = config.MergeConfigs(cfg, jsonCfg)
-		} else {
-			log.Printf("Warning: Failed to load JSON config from %s: %v", configPath, err)
-		}
-	}
-
 	// Merge with .env configuration (highest priority)
 	cfg = config.MergeConfigs(cfg, envCfg)
 
@@ -67,7 +56,7 @@ func loadConfiguration() (*config.Config, error) {
 // createServer creates an HTTP server with configuration timeouts
 func createServer(cfg *config.Config, handler http.Handler) *http.Server {
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
-	
+
 	server := &http.Server{
 		Addr:         addr,
 		Handler:      handler,
@@ -100,7 +89,7 @@ func startServerWithGracefulShutdown(server *http.Server, cfg *config.Config) er
 		return err
 	case sig := <-sigChan:
 		log.Printf("Received signal %v, initiating graceful shutdown...", sig)
-		
+
 		// Create shutdown context with timeout
 		shutdownTimeout := time.Duration(cfg.Server.ShutdownTimeout) * time.Second
 		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)

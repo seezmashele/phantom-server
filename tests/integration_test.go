@@ -321,7 +321,7 @@ func TestAllEndpointsWithMiddleware(t *testing.T) {
 		// Test with logging disabled
 		noLogCfg := &config.Config{
 			Server: config.ServerConfig{
-				EnableLogging: false,
+				EnableLogging:  false,
 				AllowedOrigins: []string{"*"},
 				AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 			},
@@ -395,7 +395,7 @@ func TestGracefulShutdown(t *testing.T) {
 
 	expectedTimeout := time.Duration(cfg.Server.ShutdownTimeout) * time.Second
 	actualTimeout := time.Until(deadline)
-	
+
 	// Allow some tolerance for timing
 	if actualTimeout < expectedTimeout-time.Second || actualTimeout > expectedTimeout+time.Second {
 		t.Errorf("Expected timeout around %v, got %v", expectedTimeout, actualTimeout)
